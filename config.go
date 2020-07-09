@@ -1,8 +1,9 @@
 package opencc
 
 import (
-	"os"
 	"bufio"
+	"bytes"
+	"fmt"
 	"strings"
 )
 
@@ -76,16 +77,42 @@ func (d *Dict) init() (err error) {
 
 //
 func (fo *FileOCD) readFile() (map[string][]string, int, int, error) {
-	fileName := dataDir + "/dictionary/" + string(*fo)
-	f, err := os.Open(fileName)
+	m := make(map[string]func() ([]byte, error))
+	m["HKVariants.ocd"] = dataDictionaryHkvariantsOcdBytes
+	m["HKVariantsPhrases.ocd"] = dataDictionaryHkvariantsphrasesOcdBytes
+	m["HkVariantsRevPhrases.ocd"] = dataDictionaryHkvariantsrevphrasesOcdBytes
+	m["JPVariants.ocd"] = dataDictionaryJpvariantsOcdBytes
+	m["STCharacters.ocd"] = dataDictionaryStcharactersOcdBytes
+	m["STPhrases.ocd"] = dataDictionaryStphrasesOcdBytes
+	m["TSCharacters.ocd"] = dataDictionaryTscharactersOcdBytes
+	m["TSPhrases.ocd"] = dataDictionaryTsphrasesOcdBytes
+	m["TWPhrases.ocd"] = dataDictionaryTwphrasesOcdBytes
+	m["TWPhrasesIT.ocd"] = dataDictionaryTwphrasesitOcdBytes
+	m["TWPhrasesName.ocd"] = dataDictionaryTwphrasesnameOcdBytes
+	m["TWPhrasesOther.ocd"] = dataDictionaryTwphrasesotherOcdBytes
+	m["TWVariants.ocd"] = dataDictionaryTwvariantsOcdBytes
+	m["TWVariantsRevPhrases.ocd"] = dataDictionaryTwvariantsrevphrasesOcdBytes
+
+	// fileName := dataDir + "/dictionary/" + string(*fo)
+	// f, err := os.Open(fileName)
+	// if err != nil {
+	// 	return nil, 0, 0, err
+	// }
+	btsFunc, ok := m[string(*fo)]
+	if !ok {
+		return nil, 0, 0, fmt.Errorf("dict not found %s", string(*fo))
+	}
+	bts, err := btsFunc()
 	if err != nil {
 		return nil, 0, 0, err
 	}
 	cfgMap := make(map[string][]string)
-	buf := bufio.NewReader(f)
+
+	b := bytes.NewReader(bts)
+	buf := bufio.NewReader(b)
 	//
-	max := 0;
-	min := 0;
+	max := 0
+	min := 0
 	//
 	for {
 		line, err := buf.ReadString('\n')
@@ -137,7 +164,7 @@ func (d *Dict) convertTextWithMap(text string) (string, error) {
 			return text, nil
 		}
 		//
-		maxL := d.maxLen;
+		maxL := d.maxLen
 		if maxL > len(runes) {
 			maxL = len(runes)
 		}
@@ -147,10 +174,10 @@ func (d *Dict) convertTextWithMap(text string) (string, error) {
 				if i == 0 || j+i > len(runes) {
 					continue
 				}
-				old := string(runes[j:j+i]);
+				old := string(runes[j : j+i])
 				if newStr, ok := d.CfgMap[old]; ok {
 					newText = strings.Replace(newText, old, newStr[0], 1)
-					j = j + i - 1;
+					j = j + i - 1
 				}
 			}
 		}
