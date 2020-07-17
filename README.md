@@ -2,6 +2,10 @@
 
 基于OpenCC中文简繁体转换的golang开发包
 
+Forked from https://github.com/sgoby/opencc
+
+原仓库需要在当前目录下有配置文件, fork以后使用 bindata 将资源文件内嵌使用
+
 #### 转换类型
 
 * `s2t` Simplified Chinese to Traditional Chinese 简体到繁體
@@ -17,9 +21,11 @@
 
 ### 使用
 
+```console
+go get -u github.com/jeremaihloo/opencc
+```
 ```go
-import "github.com/sgoby/opencc"
-
+import "github.com/jeremaihloo/opencc"
 ...
 
 //简体到繁體（臺灣正體標準）
