@@ -22,14 +22,32 @@ type OpenCC struct {
 	conf *Config
 }
 
-// Supported conversions: s2t, t2s, s2tw, tw2s, s2hk, hk2s, s2twp, tw2sp, t2tw, t2hk
+type jsonBytesFunc = func() ([]byte, error)
+
+// NewOpenCC Supported conversions: s2t, t2s, s2tw, tw2s, s2hk, hk2s, s2twp, tw2sp, t2tw, t2hk
 func NewOpenCC(conversions string) (*OpenCC, error) {
 	// if len(dataDir) < 1 {
 	// 	dataDir = filepath.Dir(os.Args[0]) + "/data"
 	// }
 	// fileName := dataDir + "/config/" + conversions + ".json"
 	// body, err := ioutil.ReadFile(fileName)
-	body, err := dataConfigS2hkJsonBytes()
+	m := map[string]jsonBytesFunc{
+		"s2t":   dataConfigS2tJsonBytes,
+		"t2s":   dataConfigT2sJsonBytes,
+		"s2tw":  dataConfigS2twJsonBytes,
+		"tw2s":  dataConfigTw2sJsonBytes,
+		"s2hk":  dataConfigS2hkJsonBytes,
+		"hk2s":  dataConfigHk2sJsonBytes,
+		"s2twp": dataConfigS2twpJsonBytes,
+		"tw2sp": dataConfigTw2spJsonBytes,
+		"t2tw":  dataConfigT2twJsonBytes,
+		"t2hk":  dataConfigT2hkJsonBytes,
+	}
+	fn, ok := m[conversions]
+	if !ok {
+		return nil, fmt.Errorf("conversions not found %s", conversions)
+	}
+	body, err := fn()
 	if err != nil {
 		return nil, err
 	}
