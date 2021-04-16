@@ -1,3 +1,3 @@
-module github.com/jeremaihloo/opencc
+module github.com/jerloo/opencc
 
 go 1.13

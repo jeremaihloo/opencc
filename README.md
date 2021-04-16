@@ -22,10 +22,10 @@ Forked from https://github.com/sgoby/opencc
 ### 使用
 
 ```console
-go get -u github.com/jeremaihloo/opencc
+go get -u github.com/jerloo/opencc
 ```
 ```go
-import "github.com/jeremaihloo/opencc"
+import "github.com/jerloo/opencc"
 ...
 
 //简体到繁體（臺灣正體標準）
